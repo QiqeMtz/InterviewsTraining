@@ -1,9 +1,8 @@
 package CodingProblems;
 
-import java.io.*;
 import java.util.*;
 
-/*
+/**
  *
  *
 
@@ -150,8 +149,44 @@ import java.util.*;
 
 class FolderPermissions {
     public static void main(String[] args) {
+
+        /*
+        A <- B <- C
+          <- D
+          <- E <- F <- G
+         */
+        List<String[]> directories =  new LinkedList<>();
+        directories.add (new String[]{"A", null}); // root
+        directories.add (new String[]{"B", "A"});
+        directories.add (new String[]{"C", "B"});
+        directories.add (new String[]{"D", "A"});
+        directories.add (new String[]{"E", "A"});
+        directories.add (new String[]{"F", "E"});
+        directories.add (new String[]{"G", "F"});
+
+        Set<String> access = new HashSet<>();
+        access.add("B");
+        access.add("E");
+
+        Set<String> noInheritance = new HashSet<>();
+        access.add("F");
+
+        Tree treeFolder = new Tree(access, directories, noInheritance);
+        System.out.println(Arrays.toString(treeFolder.access.toArray()));
+        System.out.println(Arrays.toString(treeFolder.noInheritance.toArray()));
+
+        System.out.println(treeFolder.hasAccess("B"));
+        System.out.println(treeFolder.hasAccess("C"));
+        System.out.println(treeFolder.hasAccess("A"));
+        System.out.println(treeFolder.hasAccess("G"));
+
     }
 
+    /**
+     * Class to represente each node in a Tree structure
+     * this representation has a special field called access
+     * to indicate if has whether or not access
+     */
     static class Node {
         String val;
         List<Node> children;
@@ -163,11 +198,39 @@ class FolderPermissions {
         }
     }
 
+    /**
+     * Class to represent a Tree structure
+     */
     static class Tree {
         Node root;
         Map<String, Node> dMap = new HashMap<>();
+        static Set<String> noInheritance = new HashSet<>();
+        static Set<String> access = new HashSet<>();
 
-        public Tree(Set<String> access, List<String[]> directory){
+        /**
+         * Main constructor
+         * First populate a Hashmap containing all the nodes of the directory
+         * Then check if any node has a parent with access, if true then the node
+         * is added to the list of its parent node
+         * Also in the second for loop we found the root node
+         * At the end we update the children of parent nodes with access flag true
+         * to set true their flags, we use the update(method)
+         *
+         * Then we call the removeConcurrentAccess method to remove concurrent accesses i.e. if C is son of B, and
+         * both of them are in the access set, C is a redundant access and needs to be removed
+         *
+         * Also we have NoInheritance access Set to special designated access, we also check if any Folder Key is
+         * inside this set to avoid in the redundant access removal.
+         *
+         * At the end we clean the access set checking if we have redundant access, keeping in mind that
+         * can be noInheritance access and those access must be kept.
+         *
+         * @param access the Set of accesses
+         * @param directory the folder directory
+         */
+        public Tree(Set<String> access, List<String[]> directory, Set<String> noInheritance){
+            this.noInheritance = noInheritance;
+            this.access = access;
 
             for(String[] link: directory) {
                 for(int i = 0; i < 2; i++) {
@@ -175,7 +238,7 @@ class FolderPermissions {
                         continue;
                     if(dMap.containsKey(link[i]))
                         continue;
-                    dMap.put(link[i], new Node(link[i],access.contains(link[i])));
+                    dMap.put(link[i], new Node(link[i], this.access.contains(link[i])));
                 }
             }
 
@@ -189,10 +252,11 @@ class FolderPermissions {
 
             update(root, false);
 
+            cleanRedundantAccess(root, false);
+
         }
+
         /**
-
-
          A f
          (A, F)
          B.access, <> F
@@ -217,9 +281,11 @@ class FolderPermissions {
          F T T
          */
 
-        // update(root, false);
-
-        // N-Tree
+        /**
+         * Method to update permissions on children folders
+         * @param node the node to check it's children permissions
+         * @param pAcc previous access boolean flag
+         */
         void update(Node node, boolean pAcc) {
             if(node==null){
                 return;
@@ -233,6 +299,32 @@ class FolderPermissions {
             }
         }
 
+        /*
+        Set<sTRING> f( node, boolean ancestorSTATE){
+       for(child: node.children){
+          ancestorSTATE = ancestorSTATE  &&  NoInheretence.contains(child) ? false: ancesterSTate;
+          boolean state =  ancestorSTATE || access.contains(child.value);
+          if(!NoInheretence.contains(child)){
+            f(ancester && child, access.contains(child.value)){
+              ACCESS.delete();
+            }
+          }
+       }
+    }
+         */
+        void cleanRedundantAccess(Node node, boolean ancestorState) {
+            if(node == null)
+                return;
+
+            for(Node child : node.children) {
+                boolean ancState = ancestorState && noInheritance.contains(child) ? false : ancestorState;
+                if (!noInheritance.contains(child)) {
+                    cleanRedundantAccess(child, ancState && access.contains(child.val));
+                    access.remove(child.val);
+                }
+            }
+        }
+
         // Binary Tree
         // void update(Node node) {
         //   if(node==null){
@@ -242,6 +334,11 @@ class FolderPermissions {
         //   update(node.right);
         // }
 
+        /**
+         * Method to check if given a String directory key we have access to this.
+         * @param directory the directory string
+         * @return true if we have access, if not return false
+         */
         boolean hasAccess(String directory){
             return dMap.get(directory).access;
         }
