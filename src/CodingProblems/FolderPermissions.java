@@ -165,15 +165,14 @@ class FolderPermissions {
         directories.add (new String[]{"G", "F"});
 
         Set<String> access = new HashSet<>();
-        access.add("B");
+//        access.add("B");
         access.add("E");
 
         Set<String> noInheritance = new HashSet<>();
         access.add("F");
 
         Tree treeFolder = new Tree(access, directories, noInheritance);
-        System.out.println(Arrays.toString(treeFolder.access.toArray()));
-        System.out.println(Arrays.toString(treeFolder.noInheritance.toArray()));
+        treeFolder.printAccessAndInheritanceSets();
 
         System.out.println(treeFolder.hasAccess("B"));
         System.out.println(treeFolder.hasAccess("C"));
@@ -204,8 +203,8 @@ class FolderPermissions {
     static class Tree {
         Node root;
         Map<String, Node> dMap = new HashMap<>();
-        static Set<String> noInheritance = new HashSet<>();
-        static Set<String> access = new HashSet<>();
+        Set<String> noInheritance;
+        Set<String> access;
 
         /**
          * Main constructor
@@ -229,8 +228,8 @@ class FolderPermissions {
          * @param directory the folder directory
          */
         public Tree(Set<String> access, List<String[]> directory, Set<String> noInheritance){
-            this.noInheritance = noInheritance;
-            this.access = access;
+            this.noInheritance = new HashSet<>(noInheritance);
+            this.access = new HashSet<>(access);
 
             for(String[] link: directory) {
                 for(int i = 0; i < 2; i++) {
@@ -323,6 +322,13 @@ class FolderPermissions {
                     access.remove(child.val);
                 }
             }
+        }
+
+        void printAccessAndInheritanceSets() {
+            System.out.println("NoInheritance");
+            System.out.println(Arrays.toString(noInheritance.toArray()));
+            System.out.println("Access");
+            System.out.println(Arrays.toString(access.toArray()));
         }
 
         // Binary Tree
