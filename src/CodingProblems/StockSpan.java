@@ -1,4 +1,4 @@
-package Special;
+package CodingProblems;
 
 
 /**
