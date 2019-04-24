@@ -167,17 +167,25 @@ class FolderPermissions {
         Set<String> access = new HashSet<>();
 //        access.add("B");
         access.add("E");
+        access.add("F");
+        access.add("G");
 
         Set<String> noInheritance = new HashSet<>();
-        access.add("F");
+        noInheritance.add("F");
+
+        System.out.println("Before");
+        System.out.println("Access: " + Arrays.toString(access.toArray()));
+        System.out.println("No Inheritance: " + Arrays.toString(noInheritance.toArray()));
+
 
         Tree treeFolder = new Tree(access, directories, noInheritance);
         treeFolder.printAccessAndInheritanceSets();
 
-        System.out.println(treeFolder.hasAccess("B"));
-        System.out.println(treeFolder.hasAccess("C"));
-        System.out.println(treeFolder.hasAccess("A"));
-        System.out.println(treeFolder.hasAccess("G"));
+        System.out.println("\nAfter");
+        System.out.println(treeFolder.hasAccess("B")); // false
+        System.out.println(treeFolder.hasAccess("C")); // false
+        System.out.println(treeFolder.hasAccess("A")); // false
+        System.out.println(treeFolder.hasAccess("G")); // true
 
     }
 
@@ -315,17 +323,19 @@ class FolderPermissions {
             if(node == null)
                 return;
 
+            // se borran mis hijos y yo
             for(Node child : node.children) {
-                boolean ancState = ancestorState && noInheritance.contains(child) ? false : ancestorState;
-                if (!noInheritance.contains(child)) {
-                    cleanRedundantAccess(child, ancState && access.contains(child.val));
+                //ancestorState = ancestorState && noInheritance.contains(child) ? false : ancestorState;
+                ancestorState = ancestorState || access.contains(child.val);
+                if (ancestorState) {
+                    cleanRedundantAccess(child, ancestorState);
                     access.remove(child.val);
                 }
             }
         }
 
         void printAccessAndInheritanceSets() {
-            System.out.println("NoInheritance");
+            System.out.println("\nNoInheritance");
             System.out.println(Arrays.toString(noInheritance.toArray()));
             System.out.println("Access");
             System.out.println(Arrays.toString(access.toArray()));
