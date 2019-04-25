@@ -323,13 +323,19 @@ class FolderPermissions {
             if(node == null)
                 return;
 
-            // se borran mis hijos y yo
-            for(Node child : node.children) {
-                //ancestorState = ancestorState && noInheritance.contains(child) ? false : ancestorState;
-                ancestorState = ancestorState || access.contains(child.val);
-                if (ancestorState) {
-                    cleanRedundantAccess(child, ancestorState);
-                    access.remove(child.val);
+            ancestorState = noInheritance.contains(node.val) ? false : ancestorState;
+
+            if(ancestorState){
+                if(access.contains(node.val)) {
+                    access.remove(node.val);
+                }
+                for(Node child : node.children) {
+                    cleanRedundantAccess(child, true);
+                }
+            } else {
+                boolean state =  access.contains(node.val);
+                for(Node child : node.children) {
+                    cleanRedundantAccess(child, state);
                 }
             }
         }
