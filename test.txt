@@ -1,0 +1,8 @@
+10:40:00, Task1, Started
+10:41:00, Task2, Started
+10:45:00, Task1, Finished
+10:47:00, Task3, Started
+10:50:00, Task3, Finished
+11:00:00, Task2, Finished
+11:15:00, Task4, Started
+11:20:00, Task4, Finished
