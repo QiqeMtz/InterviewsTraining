@@ -1,38 +1,41 @@
 package HackerRank;
 
 import java.io.*;
-import java.math.*;
-import java.security.*;
-import java.text.*;
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.regex.*;
 
 public class Solution {
 
-    // Complete the solve function below.
-    static void solve(double meal_cost, int tip_percent, int tax_percent) {
-        double tipPercent = meal_cost * (tip_percent/100.0);
-        double taxPercent = meal_cost * (tax_percent/100.0);
-        double result = meal_cost + tipPercent + taxPercent;
-        System.out.println(Math.round(result));
+    public static void main(String[] args) {
+        /* Enter your code here. Read input from STDIN. Print output to STDOUT. Your class should be named Solution. */
+        int cases;
+        String str;
 
+        Scanner scn = new Scanner(System.in);
+
+        cases = scn.nextInt();
+
+        for(int i = 0; i < cases; i++) {
+            str = scn.next();
+
+            System.out.println(print(str));
+        }
     }
 
-    private static final Scanner scanner = new Scanner(System.in);
+    static String print(String str){
+        StringBuilder evens = new StringBuilder();
+        StringBuilder odds = new StringBuilder();
 
-    public static void main(String[] args) {
-        double meal_cost = scanner.nextDouble();
-        scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+        for(int i = 0; i < str.length(); i++) {
+            if(i % 2 == 0){
+                evens.append(String.valueOf(str.charAt(i)));
+            } else {
+                odds.append(String.valueOf(str.charAt(i)));
+            }
+        }
 
-        int tip_percent = scanner.nextInt();
-        scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
-
-        int tax_percent = scanner.nextInt();
-        scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
-
-        solve(meal_cost, tip_percent, tax_percent);
-
-        scanner.close();
+        return (evens.toString() + " " + odds.toString());
     }
 }
+
+
+
